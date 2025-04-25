@@ -120,19 +120,14 @@ struct MinimalProgresBar: View {
             .tint(Color("PrimaryColor"))
     }
 }
-#Preview("LiveActivity Content Preview") {
-    LiveActivityContent(
-        progress: 0.5,
-        position: 3,
-        waitlistName: "Dinner Queue"
-    )
+
+#Preview("LockScreen", as: .content, using: WaitlistAttributes(waitListName: "Dinner Queue")) {
+    WaitTimeLiveActivityWidget()
+} contentStates: {
+    for i in stride(from: 10, through: 1, by: -1) {
+        let progress = (10 - Double(i)) / 10.0
+        WaitlistAttributes.ContentState(position: i, progress: progress)
+    }
 }
 
-//#Preview("LockScreen", as: .content, using: WaitlistAttributes.preview) {
-//    WaitTimeLiveActivityWidget()
-//} contentStates: {
-//    for i in stride(from: 10, through: 1, by: -1) {
-//        let progress = (10 - Double(i)) / 10.0
-//        WaitlistAttributes.ContentState(currentPositionInQueue: i, progress: progress)
-//    }
-//}
+
