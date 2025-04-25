@@ -58,6 +58,23 @@ struct HorizontalProgressBar: View {
     }
 }
 
+//struct QueuePostion: View {
+//    let position: Int
+//
+//    var body: some View {
+//        VStack(alignment: .leading) {
+//            HStack(alignment: .firstTextBaseline) {
+//                Text("\(position)")
+//                    .font(.system(size: 36, weight: .semibold)).lineSpacing(48).foregroundColor(Color("TextPrimary"))
+//                Text(" is your current")
+//                    .font(.system(size: 18, weight: .semibold))
+//                    .lineSpacing(26).foregroundColor(Color("TextPrimary"))
+//            }
+//            Text("position in the queue")
+//                .font(.system(size: 18, weight: .semibold)).foregroundColor(Color("TextPrimary"))
+//        }
+//    }
+//}
 struct QueuePostion: View {
     let position: Int
 
@@ -65,13 +82,17 @@ struct QueuePostion: View {
         VStack(alignment: .leading) {
             HStack(alignment: .firstTextBaseline) {
                 Text("\(position)")
-                    .font(.system(size: 36, weight: .semibold)).lineSpacing(48).foregroundColor(Color("TextPrimary"))
+                    .font(.system(size: 36, weight: .semibold))
+                    .lineSpacing(48)
+                    .foregroundColor(.black) // Color estándar
                 Text(" is your current")
                     .font(.system(size: 18, weight: .semibold))
-                    .lineSpacing(26).foregroundColor(Color("TextPrimary"))
+                    .lineSpacing(26)
+                    .foregroundColor(.black) // Color estándar
             }
             Text("position in the queue")
-                .font(.system(size: 18, weight: .semibold)).foregroundColor(Color("TextPrimary"))
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.black) // Color estándar
         }
     }
 }
