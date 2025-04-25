@@ -17,7 +17,8 @@ class LiveActivityManager {
     func startActivity(waitlistName: String, position: Int, progress: Double) {
         if ActivityAuthorizationInfo().areActivitiesEnabled {
             // Define el estado inicial y atributos
-            let attributes = WaitlistAttributes(waitListName:"Dinner Queue")
+            //let attributes = WaitlistAttributes(waitListName:"Dinner Queue")
+            let attributes = WaitlistAttributes(waitListName: waitlistName)
             let initialState = WaitlistAttributes.Waitlist(position: position, progress: progress)
             let contentState = ActivityContent(state: initialState, staleDate: nil)
             // Inicia el Live Activity

@@ -54,8 +54,11 @@
 		743E3E1F2DBA2A7200ECB38B /* Exceptions for "WaitlistDemo" folder in "DinamicIsland" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Assets.xcassets,
+				LiveActivityContent.swift,
 				LiveActivityManger.swift,
 				WaitlistAttributes.swift,
+				WaitTimeLiveActivityWidget.swift,
 			);
 			target = 7427EBC62DB951C10085DF87 /* DinamicIsland */;
 		};

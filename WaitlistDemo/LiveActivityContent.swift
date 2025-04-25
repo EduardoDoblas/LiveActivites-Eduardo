@@ -1,8 +1,8 @@
 //
-//  LiveActivityConten.swift
-//  WaitlistDemoExtension
+//  LiveActivityContent.swift
+//  DinamicIsland
 //
-//  Created by Eduardo Villarreal on 23/04/25.
+//  Created by Eduardo Villarreal on 25/04/25.
 //
 
 import SwiftUI
@@ -58,6 +58,23 @@ struct HorizontalProgressBar: View {
     }
 }
 
+//struct QueuePostion: View {
+//    let position: Int
+//
+//    var body: some View {
+//        VStack(alignment: .leading) {
+//            HStack(alignment: .firstTextBaseline) {
+//                Text("\(position)")
+//                    .font(.system(size: 36, weight: .semibold)).lineSpacing(48).foregroundColor(Color("TextPrimary"))
+//                Text(" is your current")
+//                    .font(.system(size: 18, weight: .semibold))
+//                    .lineSpacing(26).foregroundColor(Color("TextPrimary"))
+//            }
+//            Text("position in the queue")
+//                .font(.system(size: 18, weight: .semibold)).foregroundColor(Color("TextPrimary"))
+//        }
+//    }
+//}
 struct QueuePostion: View {
     let position: Int
 
@@ -65,18 +82,21 @@ struct QueuePostion: View {
         VStack(alignment: .leading) {
             HStack(alignment: .firstTextBaseline) {
                 Text("\(position)")
-                    .font(.system(size: 36, weight: .semibold)).lineSpacing(48).foregroundColor(Color("TextPrimary"))
+                    .font(.system(size: 36, weight: .semibold))
+                    .lineSpacing(48)
+                    .foregroundColor(.black) // Color estándar
                 Text(" is your current")
                     .font(.system(size: 18, weight: .semibold))
-                    .lineSpacing(26).foregroundColor(Color("TextPrimary"))
+                    .lineSpacing(26)
+                    .foregroundColor(.black) // Color estándar
             }
             Text("position in the queue")
-                .font(.system(size: 18, weight: .semibold)).foregroundColor(Color("TextPrimary"))
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.black) // Color estándar
         }
     }
 }
-
-struct QueueIllustration :View {
+struct QueueIllustration : View {
     let position: Int
 
     var image: String {
@@ -92,19 +112,67 @@ struct QueueIllustration :View {
     }
 
     var body: some View {
-        Image(uiImage: UIImage(named: image)!)
-            .resizable().frame(width: 100, height: 100)
-            .scaledToFit()
+        if let uiImage = UIImage(named: image) {
+            Image(uiImage: uiImage)
+                .resizable()
+                .frame(width: 100, height: 100)
+                .scaledToFit()
+        } else {
+            Color.gray.frame(width: 100, height: 100)
+        }
     }
 }
 
+//struct QueueIllustration :View {
+//    let position: Int
+//
+//    var image: String {
+//        if position < 5 {
+//            return "queue4"
+//        } else if position < 9 {
+//            return "queue3"
+//        } else if position < 25 {
+//            return "queue2"
+//        } else {
+//            return "queue1"
+//        }
+//    }
+//
+//    var body: some View {
+//        if let uiImage = UIImage(named: image) {
+//            Image(uiImage: uiImage)
+//                .resizable()
+//                .frame(width: 100, height: 100)
+//        } else {
+//            Color.gray.frame(width: 100, height: 100)
+//        }
+////        Image(uiImage: UIImage(named: image)!)
+////            .resizable().frame(width: 100, height: 100)
+////            .scaledToFit()
+//    }
+//}
+
+//struct AppLogo :View {
+//    let size: CGFloat
+//    var body: some View {
+//        Image(uiImage: UIImage(named: "AppLogo")!)
+//            .resizable().frame(width: size, height: size)
+//            .scaledToFit()
+//            .clipShape(.circle)
+//    }
+//}
 struct AppLogo :View {
     let size: CGFloat
     var body: some View {
-        Image(uiImage: UIImage(named: "AppLogo")!)
-            .resizable().frame(width: size, height: size)
-            .scaledToFit()
-            .clipShape(.circle)
+        if let uiImage = UIImage(named: "AppLogo") {
+            Image(uiImage: uiImage)
+                .resizable()
+                .frame(width: size, height: size)
+                .scaledToFit()
+                .clipShape(.circle)
+        } else {
+            Color.gray.frame(width: size, height: size).clipShape(.circle)
+        }
     }
 }
 struct MinimalProgresBar: View {
@@ -120,19 +188,14 @@ struct MinimalProgresBar: View {
             .tint(Color("PrimaryColor"))
     }
 }
-#Preview("LiveActivity Content Preview") {
-    LiveActivityContent(
-        progress: 0.5,
-        position: 3,
-        waitlistName: "Dinner Queue"
-    )
+
+#Preview("LockScreen", as: .content, using: WaitlistAttributes(waitListName: "Dinner Queue")) {
+    WaitTimeLiveActivityWidget()
+} contentStates: {
+    for i in stride(from: 10, through: 1, by: -1) {
+        let progress = (10 - Double(i)) / 10.0
+        WaitlistAttributes.ContentState(position: i, progress: progress)
+    }
 }
 
-//#Preview("LockScreen", as: .content, using: WaitlistAttributes.preview) {
-//    WaitTimeLiveActivityWidget()
-//} contentStates: {
-//    for i in stride(from: 10, through: 1, by: -1) {
-//        let progress = (10 - Double(i)) / 10.0
-//        WaitlistAttributes.ContentState(currentPositionInQueue: i, progress: progress)
-//    }
-//}
+
