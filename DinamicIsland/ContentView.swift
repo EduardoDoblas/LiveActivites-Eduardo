@@ -53,6 +53,7 @@ struct LiveActivityDemoView: View {
 
             // Update Button
             Button(action: {
+                LiveActivityManager.shared.updateActivity(position: position, progress: progress)
                 // Action to update the live activity will go here
             }) {
                 Text("Update Activity")
@@ -67,7 +68,7 @@ struct LiveActivityDemoView: View {
 
             // End Button
             Button(action: {
-
+                LiveActivityManager.shared.endActivity(position: position, progress: progress)
                 // Action to end the live activity will go here
                 
             }) {

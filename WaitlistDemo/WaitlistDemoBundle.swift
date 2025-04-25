@@ -11,7 +11,6 @@ import SwiftUI
 @main
 struct WaitlistDemoBundle: WidgetBundle {
     var body: some Widget {
-        //WaitlistDemo()
         WaitTimeLiveActivityWidget()
     }
 }

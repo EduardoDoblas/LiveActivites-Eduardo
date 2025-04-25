@@ -1,8 +1,8 @@
 //
-//  LiveActivityConten.swift
-//  WaitlistDemoExtension
+//  LiveActivityContent.swift
+//  DinamicIsland
 //
-//  Created by Eduardo Villarreal on 23/04/25.
+//  Created by Eduardo Villarreal on 25/04/25.
 //
 
 import SwiftUI
@@ -96,8 +96,7 @@ struct QueuePostion: View {
         }
     }
 }
-
-struct QueueIllustration :View {
+struct QueueIllustration : View {
     let position: Int
 
     var image: String {
@@ -113,19 +112,67 @@ struct QueueIllustration :View {
     }
 
     var body: some View {
-        Image(uiImage: UIImage(named: image)!)
-            .resizable().frame(width: 100, height: 100)
-            .scaledToFit()
+        if let uiImage = UIImage(named: image) {
+            Image(uiImage: uiImage)
+                .resizable()
+                .frame(width: 100, height: 100)
+                .scaledToFit()
+        } else {
+            Color.gray.frame(width: 100, height: 100)
+        }
     }
 }
 
+//struct QueueIllustration :View {
+//    let position: Int
+//
+//    var image: String {
+//        if position < 5 {
+//            return "queue4"
+//        } else if position < 9 {
+//            return "queue3"
+//        } else if position < 25 {
+//            return "queue2"
+//        } else {
+//            return "queue1"
+//        }
+//    }
+//
+//    var body: some View {
+//        if let uiImage = UIImage(named: image) {
+//            Image(uiImage: uiImage)
+//                .resizable()
+//                .frame(width: 100, height: 100)
+//        } else {
+//            Color.gray.frame(width: 100, height: 100)
+//        }
+////        Image(uiImage: UIImage(named: image)!)
+////            .resizable().frame(width: 100, height: 100)
+////            .scaledToFit()
+//    }
+//}
+
+//struct AppLogo :View {
+//    let size: CGFloat
+//    var body: some View {
+//        Image(uiImage: UIImage(named: "AppLogo")!)
+//            .resizable().frame(width: size, height: size)
+//            .scaledToFit()
+//            .clipShape(.circle)
+//    }
+//}
 struct AppLogo :View {
     let size: CGFloat
     var body: some View {
-        Image(uiImage: UIImage(named: "AppLogo")!)
-            .resizable().frame(width: size, height: size)
-            .scaledToFit()
-            .clipShape(.circle)
+        if let uiImage = UIImage(named: "AppLogo") {
+            Image(uiImage: uiImage)
+                .resizable()
+                .frame(width: size, height: size)
+                .scaledToFit()
+                .clipShape(.circle)
+        } else {
+            Color.gray.frame(width: size, height: size).clipShape(.circle)
+        }
     }
 }
 struct MinimalProgresBar: View {
