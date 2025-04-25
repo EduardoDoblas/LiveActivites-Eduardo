@@ -20,7 +20,6 @@ class LiveActivityManager {
             let attributes = WaitlistAttributes(waitListName:"Dinner Queue")
             let initialState = WaitlistAttributes.Waitlist(position: position, progress: progress)
             let contentState = ActivityContent(state: initialState, staleDate: nil)
-
             // Inicia el Live Activity
             do {
                 let activity = try Activity<WaitlistAttributes>.request(
