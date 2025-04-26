@@ -13,24 +13,24 @@ struct LiveActivityDemoView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Text("Live Activity Demo")
+            Text("Demostracion de LiveActivites")
                 .font(.title)
-                .foregroundColor(.white) // White text for better contrast
+                .foregroundColor(.black)
                 .padding(.top, 40)
 
             // Text Field for Waitlist Name
-            TextField("Enter Waitlist Name", text: $waitlistName)
+            TextField("Introducir nombre", text: $waitlistName)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal, 20)
 
             // Text Field for Queue Position
-            TextField("Enter Queue Position", value: $position, formatter: NumberFormatter())
+            TextField("Ingresa la Posicion", value: $position, formatter: NumberFormatter())
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal, 20)
                 .keyboardType(.numberPad)
 
             // Text Field for Progress
-            TextField("Enter Progress (0.0 to 1.0)", value: $progress, formatter: NumberFormatter())
+            TextField("ingresa el progreso (0.0 to 1.0)", value: $progress, formatter: NumberFormatter())
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal, 20)
                 .keyboardType(.decimalPad)
@@ -41,12 +41,12 @@ struct LiveActivityDemoView: View {
                 
                 // Action to start the live activity will go here
             }) {
-                Text("Start Activity")
+                Text("Iniciar Activity")
                     .font(.headline)
                     .foregroundColor(.white)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color.gray) // Grayscale background
+                    .background(Color.yellow)
                     .cornerRadius(10)
             }
             .padding(.horizontal, 20)
@@ -54,14 +54,13 @@ struct LiveActivityDemoView: View {
             // Update Button
             Button(action: {
                 LiveActivityManager.shared.updateActivity(position: position, progress: progress)
-                // Action to update the live activity will go here
             }) {
-                Text("Update Activity")
+                Text("Actualizar Activity")
                     .font(.headline)
                     .foregroundColor(.white)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color(white: 0.7)) // Slightly lighter gray
+                    .background(Color.blue)
                     .cornerRadius(10)
             }
             .padding(.horizontal, 20)
@@ -69,15 +68,14 @@ struct LiveActivityDemoView: View {
             // End Button
             Button(action: {
                 LiveActivityManager.shared.endActivity(position: position, progress: progress)
-                // Action to end the live activity will go here
                 
             }) {
-                Text("End Activity")
+                Text("Detener Activity")
                     .font(.headline)
                     .foregroundColor(.white)
                     .padding()
                     .frame(maxWidth: .infinity)
-                    .background(Color(white: 0.5)) // Even lighter gray
+                    .background(Color.red)
                     .cornerRadius(10)
             }
             .padding(.horizontal, 20)

@@ -28,9 +28,9 @@ struct WaitTimeLiveActivityWidget : Widget{
                 }
                 DynamicIslandExpandedRegion(.center) {
                     
-                    Text("your position in queue")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(Color("TextPrmary"))
+                    Text("Texto prueba DinamicIsland Extendida")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundStyle(Color(.red))
                               }
                     
                               
