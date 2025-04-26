@@ -7,9 +7,18 @@
 
 import SwiftUI
 struct LiveActivityDemoView: View {
-    @State private var waitlistName: String = ""
-    @State private var position: Int = 0
-    @State private var progress: Double = 0.0
+    @State var waitlistName: String = ""
+    @State var position: Int = 1
+    @State var progress: Double = 0.0
+    @State var stepTime: Double = 0.5
+    @State var timer: Timer? = nil
+    @State var isRunning = false
+    @State var isPickerVisible: Bool = false
+    @State var selectedInterval: Double = 1.0
+    var intervals: [Double] {
+        stride(from: 0.5, through: 60, by: 0.5).map { Double(round($0 * 10) / 10) }
+    }
+
 
     var body: some View {
         VStack(spacing: 20) {
@@ -18,28 +27,51 @@ struct LiveActivityDemoView: View {
                 .foregroundColor(.black)
                 .padding(.top, 40)
 
-            // Text Field for Waitlist Name
+            // Text Field para el nombre
             TextField("Introducir nombre", text: $waitlistName)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal, 20)
 
-            // Text Field for Queue Position
-            TextField("Ingresa la Posicion", value: $position, formatter: NumberFormatter())
+            // Text Field para la posición (fijo, no se moverá)
+            TextField("Ingresa la Posición", value: $position, formatter: NumberFormatter())
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding(.horizontal, 20)
                 .keyboardType(.numberPad)
+                .disabled(isRunning) // Desactivar el TextField si el temporizador está corriendo
 
-            // Text Field for Progress
-            TextField("ingresa el progreso (0.0 to 1.0)", value: $progress, formatter: NumberFormatter())
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal, 20)
-                .keyboardType(.decimalPad)
-
-            // Start Button
+            // Picker para el tiempo entre pasos (de 0.5 a 60 segundos)
             Button(action: {
-                LiveActivityManager.shared.startActivity(waitlistName: waitlistName, position: position, progress: progress)
-                
-                // Action to start the live activity will go here
+                            withAnimation {
+                                isPickerVisible.toggle()
+                            }
+                        }) {
+                            HStack {
+                                Text("Intervalo entre pasos: \(selectedInterval, specifier: "%.1f")s")
+                                Spacer()
+                                Image(systemName: isPickerVisible ? "chevron.up" : "chevron.down")
+                            }
+                            .padding()
+                            .background(Color.gray.opacity(0.2))
+                            .cornerRadius(10)
+                            .padding(.horizontal, 20)
+                        }
+
+                        if isPickerVisible {
+                            Picker("Tiempo por paso", selection: $selectedInterval) {
+                                ForEach(intervals, id: \.self) { interval in
+                                    Text("\(interval, specifier: "%.1f") segundos").tag(interval)
+                                }
+                            }
+                            .pickerStyle(.wheel)
+                            .frame(maxHeight: 150)
+                            .clipped()
+                            .padding(.horizontal, 20)
+                        }
+
+
+            // Botón para iniciar la actividad
+            Button(action: {
+                startActivity()
             }) {
                 Text("Iniciar Activity")
                     .font(.headline)
@@ -50,10 +82,11 @@ struct LiveActivityDemoView: View {
                     .cornerRadius(10)
             }
             .padding(.horizontal, 20)
+            .disabled(isRunning) // Desactivar si ya está corriendo
 
-            // Update Button
+            // Botón para actualizar la actividad
             Button(action: {
-                LiveActivityManager.shared.updateActivity(position: position, progress: progress)
+                updateActivity()
             }) {
                 Text("Actualizar Activity")
                     .font(.headline)
@@ -65,10 +98,9 @@ struct LiveActivityDemoView: View {
             }
             .padding(.horizontal, 20)
 
-            // End Button
+            // Botón para detener la actividad
             Button(action: {
-                LiveActivityManager.shared.endActivity(position: position, progress: progress)
-                
+                stopActivity()
             }) {
                 Text("Detener Activity")
                     .font(.headline)
@@ -79,8 +111,39 @@ struct LiveActivityDemoView: View {
                     .cornerRadius(10)
             }
             .padding(.horizontal, 20)
+            .disabled(!isRunning) // Desactivar si no está corriendo
 
             Spacer()
         }
     }
+
+    // Iniciar actividad
+    func startActivity() {
+        LiveActivityManager.shared.startActivity(waitlistName: waitlistName, position: position, progress: progress)
+        
+        // Iniciar el temporizador para decrementar la posición
+        isRunning = true
+        timer = Timer.scheduledTimer(withTimeInterval: stepTime, repeats: true) { _ in
+            if position > 0 {
+                position -= 1 // Reducir la posición en cada paso
+                progress = 1 - (Double(position) / 100.0) // Calcula el progreso (esto puede cambiar según tu lógica)
+                LiveActivityManager.shared.updateActivity(position: position, progress: progress)
+            } else {
+                stopActivity() // Detener cuando llegue a 0
+            }
+        }
+    }
+
+    // Actualizar actividad
+    func updateActivity() {
+        LiveActivityManager.shared.updateActivity(position: position, progress: progress)
+    }
+
+    // Detener actividad
+    func stopActivity() {
+        LiveActivityManager.shared.endActivity(position: position, progress: progress)
+        isRunning = false
+        timer?.invalidate() // Detener el temporizador
+    }
 }
+

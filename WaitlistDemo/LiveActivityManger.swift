@@ -17,7 +17,6 @@ class LiveActivityManager {
     func startActivity(waitlistName: String, position: Int, progress: Double) {
         if ActivityAuthorizationInfo().areActivitiesEnabled {
             // Define el estado inicial y atributos
-            //let attributes = WaitlistAttributes(waitListName:"Dinner Queue")
             let attributes = WaitlistAttributes(waitListName: waitlistName)
             let initialState = WaitlistAttributes.Waitlist(position: position, progress: progress)
             let contentState = ActivityContent(state: initialState, staleDate: nil)
@@ -36,20 +35,20 @@ class LiveActivityManager {
     }
 
     func updateActivity(position: Int, progress: Double) {
-        guard let activity = activity else {return}
+        guard let activity = activity else { return }
         let updatedContent = WaitlistAttributes.Waitlist(position: position, progress: progress)
-        Task{
+        Task {
             await activity.update(ActivityContent(state: updatedContent, staleDate: nil))
-            print("Live activites updated...")
+            print("Live activities updated...")
         }
     }
 
     func endActivity(position: Int, progress: Double) {
-        guard let activity = activity else {return}
+        guard let activity = activity else { return }
         let endContent = WaitlistAttributes.ContentState(position: position, progress: progress)
-        Task{
-            await activity.end(ActivityContent(state: endContent, staleDate: nil),dismissalPolicy: .immediate)
-            print("Live activited Removed")
+        Task {
+            await activity.end(ActivityContent(state: endContent, staleDate: nil), dismissalPolicy: .immediate)
+            print("Live activity Removed")
         }
     }
 }
