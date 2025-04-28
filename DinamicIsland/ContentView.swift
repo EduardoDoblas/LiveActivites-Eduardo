@@ -13,12 +13,6 @@ struct LiveActivityDemoView: View {
     @State var stepTime: Double = 0.5
     @State var timer: Timer? = nil
     @State var isRunning = false
-    @State var isPickerVisible: Bool = false
-    @State var selectedInterval: Double = 1.0
-    var intervals: [Double] {
-        stride(from: 0.5, through: 60, by: 0.5).map { Double(round($0 * 10) / 10) }
-    }
-
 
     var body: some View {
         VStack(spacing: 20) {
@@ -40,34 +34,15 @@ struct LiveActivityDemoView: View {
                 .disabled(isRunning) // Desactivar el TextField si el temporizador está corriendo
 
             // Picker para el tiempo entre pasos (de 0.5 a 60 segundos)
-            Button(action: {
-                            withAnimation {
-                                isPickerVisible.toggle()
-                            }
-                        }) {
-                            HStack {
-                                Text("Intervalo entre pasos: \(selectedInterval, specifier: "%.1f")s")
-                                Spacer()
-                                Image(systemName: isPickerVisible ? "chevron.up" : "chevron.down")
-                            }
-                            .padding()
-                            .background(Color.gray.opacity(0.2))
-                            .cornerRadius(10)
-                            .padding(.horizontal, 20)
-                        }
-
-                        if isPickerVisible {
-                            Picker("Tiempo por paso", selection: $selectedInterval) {
-                                ForEach(intervals, id: \.self) { interval in
-                                    Text("\(interval, specifier: "%.1f") segundos").tag(interval)
-                                }
-                            }
-                            .pickerStyle(.wheel)
-                            .frame(maxHeight: 150)
-                            .clipped()
-                            .padding(.horizontal, 20)
-                        }
-
+            Picker("Seleccionar tiempo entre pasos", selection: $stepTime) {
+                ForEach([0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 5.0, 10.0], id: \.self) { time in
+                    Text("\(time, specifier: "%.1f") segundos")
+                        .tag(time)
+                }
+            }
+            .pickerStyle(WheelPickerStyle())
+            .frame(height: 150)
+            .padding(.horizontal, 20)
 
             // Botón para iniciar la actividad
             Button(action: {
@@ -126,7 +101,7 @@ struct LiveActivityDemoView: View {
         timer = Timer.scheduledTimer(withTimeInterval: stepTime, repeats: true) { _ in
             if position > 0 {
                 position -= 1 // Reducir la posición en cada paso
-                progress = 1 - (Double(position) / 100.0) // Calcula el progreso (esto puede cambiar según tu lógica)
+                progress = 1 - (Double(position) / 10.0) // Calcula el progreso (esto puede cambiar según tu lógica)
                 LiveActivityManager.shared.updateActivity(position: position, progress: progress)
             } else {
                 stopActivity() // Detener cuando llegue a 0
