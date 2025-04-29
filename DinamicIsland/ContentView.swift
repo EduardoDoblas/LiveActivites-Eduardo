@@ -6,144 +6,138 @@
 //
 
 import SwiftUI
-struct LiveActivityDemoView: View {
-    @State var waitlistName: String = ""
-    @State var position: Int = 1
-    @State var progress: Double = 0.0
-    @State var stepTime: Double = 0.5
-    @State var timer: Timer? = nil
-    @State var isRunning = false
-    @State var isPickerVisible: Bool = false
-    @State var selectedInterval: Double = 1.0
-    var intervals: [Double] {
-        stride(from: 0.5, through: 60, by: 0.5).map { Double(round($0 * 10) / 10) }
-    }
 
+struct LiveActivityDemoView: View {
+    @State private var waitlistName: String = "Soriana-Triana"
+    @State private var position: Int = 10
+    @State private var initialPosition: Int = 10
+    @State private var progress: Double = 0.0
+    @State private var stepTime: Double = 0.5
+    @State private var timer: Timer? = nil
+    @State private var isRunning = false
+
+    @State private var showAlert: Bool = false
+    @State private var alertMessage: String = ""
+    @State private var alertTitle: String = ""
+
+    private let positionFormatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .none
+        return formatter
+    }()
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Demostracion de LiveActivites")
-                .font(.title)
+        VStack {
+            VStack(spacing: 20) {
+                Text("Prueba de Live Activity")
+                    .font(.title)
+                    .foregroundColor(.gray)
+                    .padding(.top, 40)
+
+                TextField("Nombre de la tienda", text: $waitlistName)
+                    .padding()
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(10)
+                    .foregroundColor(.black)
+                    .textFieldStyle(PlainTextFieldStyle())
+                    .padding(.horizontal, 40)
+
+                TextField("Posición", value: $position, formatter: positionFormatter)
+                    .padding()
+                    .background(Color.gray.opacity(0.2))
+                    .cornerRadius(10)
+                    .foregroundColor(.black)
+                    .keyboardType(.numberPad)
+                    .disabled(isRunning)
+                    .padding(.horizontal, 40)
+
+                Picker("Duración", selection: $stepTime) {
+                    ForEach([0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 5.0, 10.0], id: \.self) { time in
+                        Text("\(time, specifier: "%.1f") segundos").tag(time)
+                    }
+                }
+                .pickerStyle(WheelPickerStyle())
+                .frame(height: 100)
+                .padding(.horizontal, 40)
                 .foregroundColor(.black)
-                .padding(.top, 40)
 
-            // Text Field para el nombre
-            TextField("Introducir nombre", text: $waitlistName)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal, 20)
-
-            // Text Field para la posición (fijo, no se moverá)
-            TextField("Ingresa la Posición", value: $position, formatter: NumberFormatter())
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal, 20)
-                .keyboardType(.numberPad)
-                .disabled(isRunning) // Desactivar el TextField si el temporizador está corriendo
-
-            // Picker para el tiempo entre pasos (de 0.5 a 60 segundos)
-            Button(action: {
-                            withAnimation {
-                                isPickerVisible.toggle()
-                            }
-                        }) {
-                            HStack {
-                                Text("Intervalo entre pasos: \(selectedInterval, specifier: "%.1f")s")
-                                Spacer()
-                                Image(systemName: isPickerVisible ? "chevron.up" : "chevron.down")
-                            }
-                            .padding()
-                            .background(Color.gray.opacity(0.2))
-                            .cornerRadius(10)
-                            .padding(.horizontal, 20)
-                        }
-
-                        if isPickerVisible {
-                            Picker("Tiempo por paso", selection: $selectedInterval) {
-                                ForEach(intervals, id: \.self) { interval in
-                                    Text("\(interval, specifier: "%.1f") segundos").tag(interval)
-                                }
-                            }
-                            .pickerStyle(.wheel)
-                            .frame(maxHeight: 150)
-                            .clipped()
-                            .padding(.horizontal, 20)
-                        }
-
-
-            // Botón para iniciar la actividad
-            Button(action: {
-                startActivity()
-            }) {
-                Text("Iniciar Activity")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.yellow)
-                    .cornerRadius(10)
+                HStack(spacing: 20) {
+                    actionButton(title: "Iniciar", color: .green, action: startActivity)
+                    actionButton(title: "Detener", color: .red, action: stopActivity)
+                    actionButton(title: "Actualizar", color: .blue, action: updateActivity)
+                }
+                .padding(.top, 20)
             }
-            .padding(.horizontal, 20)
-            .disabled(isRunning) // Desactivar si ya está corriendo
-
-            // Botón para actualizar la actividad
-            Button(action: {
-                updateActivity()
-            }) {
-                Text("Actualizar Activity")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.blue)
-                    .cornerRadius(10)
-            }
-            .padding(.horizontal, 20)
-
-            // Botón para detener la actividad
-            Button(action: {
-                stopActivity()
-            }) {
-                Text("Detener Activity")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.red)
-                    .cornerRadius(10)
-            }
-            .padding(.horizontal, 20)
-            .disabled(!isRunning) // Desactivar si no está corriendo
-
-            Spacer()
+            .background(Color.gray.opacity(0.1).edgesIgnoringSafeArea(.all))
+        }
+        .alert(isPresented: $showAlert) {
+            Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+        }
+        .onDisappear {
+            stopActivity()
         }
     }
 
-    // Iniciar actividad
+    func actionButton(title: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding()
+                .frame(width: 100, height: 50)
+                .background(color)
+                .cornerRadius(25)
+        }
+    }
+
     func startActivity() {
+        guard !isRunning else {
+            alertTitle = "Ya en ejecución"
+            alertMessage = "La actividad ya se está ejecutando."
+            showAlert = true
+            return
+        }
+
+        initialPosition = position
+        progress = 0.0
         LiveActivityManager.shared.startActivity(waitlistName: waitlistName, position: position, progress: progress)
-        
-        // Iniciar el temporizador para decrementar la posición
+
         isRunning = true
         timer = Timer.scheduledTimer(withTimeInterval: stepTime, repeats: true) { _ in
             if position > 0 {
-                position -= 1 // Reducir la posición en cada paso
-                progress = 1 - (Double(position) / 100.0) // Calcula el progreso (esto puede cambiar según tu lógica)
+                position -= 1
+                progress = 1 - (Double(position) / Double(initialPosition))
                 LiveActivityManager.shared.updateActivity(position: position, progress: progress)
             } else {
-                stopActivity() // Detener cuando llegue a 0
+                stopActivity()
             }
         }
+
+        alertTitle = "Actividad Iniciada"
+        alertMessage = "La actividad ha comenzado correctamente."
+        showAlert = true
     }
 
-    // Actualizar actividad
     func updateActivity() {
         LiveActivityManager.shared.updateActivity(position: position, progress: progress)
+        alertTitle = "Actividad Actualizada"
+        alertMessage = "La actividad ha sido actualizada correctamente."
+        showAlert = true
     }
 
-    // Detener actividad
     func stopActivity() {
-        LiveActivityManager.shared.endActivity(position: position, progress: progress)
         isRunning = false
-        timer?.invalidate() // Detener el temporizador
+        timer?.invalidate()
+        timer = nil
+        LiveActivityManager.shared.endActivity(position: position, progress: progress)
+        alertTitle = "Actividad Detenida"
+        alertMessage = "La actividad ha sido detenida correctamente."
+        showAlert = true
     }
 }
 
+struct LiveActivityDemoView_Previews: PreviewProvider {
+    static var previews: some View {
+        LiveActivityDemoView()
+    }
+}

@@ -7,136 +7,149 @@
 
 import SwiftUI
 import WidgetKit
+
 struct LiveActivityContent : View {
     let progress: Double
     let position: Int
     let waitlistName: String
-    
+
+    var exampleId: String {
+        "9KE325Y8XYZ123"
+    }
+
+    var estado: String {
+        switch progress {
+        case 0.0: return "Recibido"
+        case 0.0..<0.5: return "Preparando"
+        case 0.5..<1.0: return "En camino"
+        default: return "Llegó"
+        }
+    }
+
+    var randomCode: String {
+        String(format: "%04d", Int.random(in: 0..<10000))
+    }
+
     var body: some View {
-        VStack {
-            HStack {
+        VStack(alignment: .leading, spacing: 4) {
+
+            // Logo + nombre
+            HStack(spacing: 6) {
+                AppLogo(size: 36)
                 Text(waitlistName)
                     .font(.system(size: 20))
                     .fontWeight(.medium)
-                    .foregroundColor(Color(.black))
+                    .foregroundColor(.white)
                     .lineLimit(1)
-                
                 Spacer()
-                AppLogo(size: 24)
             }
-            HStack {
-                VStack(alignment: .leading) {
-                    QueuePostion(position: position)
-                    HorizontalProgressBar(level: progress).frame(height: 8)
+
+            // Imagen + Labels
+            HStack(alignment: .top, spacing: 8) {
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("\(exampleId.prefix(8)): \(estado)")
+                        .font(.system(size: 15))
+                        .foregroundColor(.white)
+                    Text("Código de entrega: \(randomCode)")
+                        .font(.system(size: 15))
+                        .foregroundColor(.red)
+                    
                 }
+                QueueIllustration(progress: progress)
+                    .frame(width: 100, height: 100)
+                    .offset(x: 80, y: -24) // Leve hacia la izquierda
                 Spacer()
-                QueueIllustration(position: position)
             }
-            
-        }.padding(16)
-            .activityBackgroundTint(Color("WidgetBackground"))
-            .activitySystemActionForegroundColor(Color.black)
+
+            // Barra de progreso más gruesa
+            HorizontalProgressBar(level: progress)
+                .frame(height: 18)
+                .frame(maxWidth: .infinity)
+                .offset(y: -5)
+
+        }
+        .padding(8)
+        .activityBackgroundTint(Color("WidgetBackground"))
+        .activitySystemActionForegroundColor(Color.black)
     }
 }
 
 struct HorizontalProgressBar: View {
     var level: Double
-    
+
     var body: some View {
         GeometryReader { geometry in
-            let frame = geometry.frame(in: .local)
-            let boxWidth = frame.width * level
-            
-            RoundedRectangle(cornerRadius: 20)
-                .foregroundColor(Color(.black))
-            
-            RoundedRectangle(cornerRadius: 20)
-                .frame(width: boxWidth)
-                .foregroundColor(Color(.red))
-            
-        }
-    }
-}
-struct QueuePostion: View {
-    let position: Int
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("\(position)")
-                    .font(.system(size: 36, weight: .semibold))
-                    .lineSpacing(48)
-                    .foregroundColor(.black)
-                Text(" Esta es una prueba")
-                    .font(.system(size: 18, weight: .semibold))
-                    .lineSpacing(26)
-                    .foregroundColor(.black)
+            let width = geometry.size.width
+            let boxWidth = width * level
+
+            ZStack(alignment: .leading) {
+                RoundedRectangle(cornerRadius: 60)
+                    .fill(Color(.black))
+                RoundedRectangle(cornerRadius: 60)
+                    .fill(Color(.green))
+                    .frame(width: boxWidth)
             }
-            Text("de Texto :D")
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(.black)
         }
     }
 }
+
 struct QueueIllustration : View {
-    let position: Int
-    
+    let progress: Double
+
     var image: String {
-        if position < 5 {
-            return "queue4"
-        } else if position < 9 {
-            return "queue3"
-        } else if position < 25 {
-            return "queue2"
-        } else {
-            return "queue1"
+        switch progress {
+        case 0.0: return "queue1"
+        case 0.0..<0.5: return "queue2"
+        case 0.5..<1.0: return "queue3"
+        default: return "queue4"
         }
     }
-    
+
     var body: some View {
         if let uiImage = UIImage(named: image) {
             Image(uiImage: uiImage)
                 .resizable()
-                .frame(width: 100, height: 100)
                 .scaledToFit()
         } else {
             Image(uiImage: UIImage(named: image)!)
-                .resizable().frame(width: 100, height: 100)
+                .resizable()
                 .scaledToFit()
         }
-        
     }
 }
-struct AppLogo :View {
+
+struct AppLogo : View {
     let size: CGFloat
     var body: some View {
         Image(uiImage: UIImage(named: "AppLogo")!)
-            .resizable().frame(width: size, height: size)
+            .resizable()
+            .frame(width: size, height: size)
             .scaledToFit()
-            .clipShape(.circle)
+            .clipShape(Circle())
     }
 }
+
 struct MinimalProgresBar: View {
     let progress: Double
     let position: Int
     let size: CGFloat
-    var body: some View
-    {
-        ProgressView(value: progress, total: 1){
+    var body: some View {
+        ProgressView(value: progress, total: 1) {
             Text("\(position)")
-        }.frame(width:size, height: size)
-            .progressViewStyle(.circular)
-            .tint(Color(.red))
+        }
+        .frame(width: size, height: size)
+        .progressViewStyle(.circular)
+        .tint(Color(.red))
     }
 }
+
+// MARK: - Preview
 
 #Preview("LockScreen", as: .content, using: WaitlistAttributes(waitListName: "Nombre Ingresado")) {
     WaitTimeLiveActivityWidget()
 } contentStates: {
-    for i in stride(from: 4, through: 1, by: -1) {
-        let progress = (10 - Double(i)) / 10.0
-        WaitlistAttributes.ContentState(position: i, progress: progress)
-    }
+    WaitlistAttributes.ContentState(position: 0, progress: 0.25)
+    WaitlistAttributes.ContentState(position: 1, progress: 0.50)
+    WaitlistAttributes.ContentState(position: 2, progress: 0.75)
+    WaitlistAttributes.ContentState(position: 3, progress: 1.0)
 }
-
-
