@@ -1,18 +1,11 @@
-//
-//  ContentView.swift
-//  DinamicIsland
-//
-//  Created by Eduardo Villarreal on 23/04/25.
-//
-
 import SwiftUI
 
 struct LiveActivityDemoView: View {
     @State private var waitlistName: String = "Soriana-Triana"
     @State private var position: Int = 4
-    @State private var initialPosition: Int = 10
+    @State private var initialPosition: Int = 4
     @State private var progress: Double = 0.0
-    @State private var stepTime: Double = 0.5
+    @State private var stepTime: Double = 6.0
     @State private var timer: Timer? = nil
     @State private var isRunning = false
 
@@ -20,61 +13,29 @@ struct LiveActivityDemoView: View {
     @State private var alertMessage: String = ""
     @State private var alertTitle: String = ""
 
-    private let positionFormatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .none
-        return formatter
-    }()
-
     var body: some View {
         VStack {
-            VStack(spacing: 20) {
-                Text("Prueba de Live Activity")
-                    .font(.title)
-                    .foregroundColor(.gray)
-                    .padding(.top, 40)
-
-                TextField("Nombre de la tienda", text: $waitlistName)
-                    .padding()
-                    .background(Color.gray.opacity(0.2))
-                    .cornerRadius(10)
-                    .foregroundColor(.black)
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .padding(.horizontal, 40)
-
-                TextField("Posición", value: $position, formatter: positionFormatter)
-                    .padding()
-                    .background(Color.gray.opacity(0.2))
-                    .cornerRadius(10)
-                    .foregroundColor(.black)
-                    .keyboardType(.numberPad)
-                    .disabled(isRunning)
-                    .padding(.horizontal, 40)
-
-                Picker("Duración", selection: $stepTime) {
-                    ForEach([0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 5.0, 10.0], id: \.self) { time in
-                        Text("\(time, specifier: "%.1f") segundos").tag(time)
-                    }
-                }
-                .pickerStyle(WheelPickerStyle())
-                .frame(height: 100)
-                .padding(.horizontal, 40)
+            Text("Simulación Live Activity")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .padding(.top, 40)
                 .foregroundColor(.black)
 
-                HStack(spacing: 20) {
+            Spacer()
+
+            HStack {
+                Spacer()
+                VStack(spacing: 30) {
                     actionButton(title: "Iniciar", color: .green, action: startActivity)
                     actionButton(title: "Detener", color: .red, action: stopActivity)
-                    actionButton(title: "Actualizar", color: .blue, action: updateActivity)
                 }
-                .padding(.top, 20)
+                Spacer()
             }
-            .background(Color.gray.opacity(0.1).edgesIgnoringSafeArea(.all))
+
+            Spacer()
         }
         .alert(isPresented: $showAlert) {
             Alert(title: Text(alertTitle), message: Text(alertMessage), dismissButton: .default(Text("OK")))
-        }
-        .onDisappear {
-            stopActivity()
         }
     }
 
@@ -84,9 +45,11 @@ struct LiveActivityDemoView: View {
                 .font(.headline)
                 .foregroundColor(.white)
                 .padding()
-                .frame(width: 100, height: 50)
+                .frame(width: 150, height: 150)
                 .background(color)
-                .cornerRadius(25)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color.white, lineWidth: 1))
+                .shadow(radius: 10)
         }
     }
 
@@ -98,7 +61,7 @@ struct LiveActivityDemoView: View {
             return
         }
 
-        initialPosition = position
+        position = 4
         progress = 0.0
         LiveActivityManager.shared.startActivity(waitlistName: waitlistName, position: position, progress: progress)
 
@@ -108,8 +71,10 @@ struct LiveActivityDemoView: View {
                 position -= 1
                 progress = 1 - (Double(position) / Double(initialPosition))
                 LiveActivityManager.shared.updateActivity(position: position, progress: progress)
-            } else {
-                stopActivity()
+
+                if position == 0 {
+                    stopActivity()
+                }
             }
         }
 
@@ -118,19 +83,15 @@ struct LiveActivityDemoView: View {
         showAlert = true
     }
 
-    func updateActivity() {
-        LiveActivityManager.shared.updateActivity(position: position, progress: progress)
-        alertTitle = "Actividad Actualizada"
-        alertMessage = "La actividad ha sido actualizada correctamente."
-        showAlert = true
-    }
-
     func stopActivity() {
+        guard isRunning else { return }
+
         isRunning = false
         timer?.invalidate()
         timer = nil
         LiveActivityManager.shared.endActivity(position: position, progress: progress)
-        alertTitle = "Actividad Detenida"
+
+        alertTitle = "Actividad Terminada"
         alertMessage = "La actividad ha sido detenida correctamente."
         showAlert = true
     }

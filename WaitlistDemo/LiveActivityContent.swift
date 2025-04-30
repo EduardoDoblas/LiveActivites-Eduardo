@@ -34,7 +34,7 @@ struct LiveActivityContent: View {
 
     var estimatedDeliveryTime: String {
         let futureDate = Calendar.current.date(byAdding: .minute, value: 40, to: Date()) ?? Date()
-        let formatter = DateFormatter()
+        let formatter = DateFormatter()                                                                                                                                                                                                               
         formatter.dateFormat = "HH:mm"
         return formatter.string(from: futureDate)
     }
