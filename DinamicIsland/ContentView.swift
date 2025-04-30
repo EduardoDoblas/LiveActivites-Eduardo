@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LiveActivityDemoView: View {
     @State private var waitlistName: String = "Soriana-Triana"
-    @State private var position: Int = 10
+    @State private var position: Int = 4
     @State private var initialPosition: Int = 10
     @State private var progress: Double = 0.0
     @State private var stepTime: Double = 0.5

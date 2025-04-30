@@ -8,7 +8,7 @@
 import SwiftUI
 import WidgetKit
 
-struct LiveActivityContent : View {
+struct LiveActivityContent: View {
     let progress: Double
     let position: Int
     let waitlistName: String
@@ -27,13 +27,19 @@ struct LiveActivityContent : View {
     }
 
     var randomCode: String {
-        String(format: "%04d", Int.random(in: 0..<10000))
+        String("XN2201")
+    }
+
+    var estimatedDeliveryTime: String {
+        let futureDate = Calendar.current.date(byAdding: .minute, value: 40, to: Date()) ?? Date()
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: futureDate)
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-
-            // Logo + nombre
+            // Logo + nombre + hora estimada
             HStack(spacing: 6) {
                 AppLogo(size: 40)
                 Text(waitlistName)
@@ -42,6 +48,14 @@ struct LiveActivityContent : View {
                     .foregroundColor(.white)
                     .lineLimit(1)
                 Spacer()
+                // Hora estimada a la derecha sin texto
+                Text(estimatedDeliveryTime)
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.green.opacity(0.8))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(6)
             }
 
             // Imagen + Labels
@@ -53,20 +67,14 @@ struct LiveActivityContent : View {
                     Text("Código de entrega: \(randomCode)")
                         .font(.system(size: 15))
                         .foregroundColor(.red)
-                    
                 }
-                QueueIllustration(progress: progress)
-                    .frame(width: 50, height: 50)
-                    .offset(x: 80, y: -24) // Leve hacia la izquierda
-                //Spacer()
+
+                Spacer()
             }
 
-            // Barra de progreso más gruesa
-            HorizontalProgressBar(level: progress)
-                .frame(height: 8)
-                .frame(maxWidth: .infinity)
-                .offset(y: -10)
-
+            // Barra de pasos con círculos e imágenes
+            StepProgressBarView(progress: progress)
+                .padding(.top, 8)
         }
         .padding(8)
         .activityBackgroundTint(Color("WidgetBackground"))
@@ -74,26 +82,86 @@ struct LiveActivityContent : View {
     }
 }
 
-struct HorizontalProgressBar: View {
-    var level: Double
+struct StepProgressBarView: View {
+    let progress: Double
+    private let stepCount = 4
 
     var body: some View {
-        GeometryReader { geometry in
-            let width = geometry.size.width
-            let boxWidth = width * level
-
-            ZStack(alignment: .leading) {
-                RoundedRectangle(cornerRadius: 60)
-                    .fill(Color(.black))
-                RoundedRectangle(cornerRadius: 60)
-                    .fill(Color(.green))
-                    .frame(width: boxWidth)
+        HStack(spacing: 0) {
+            ForEach(0..<stepCount) { index in
+                HStack(spacing: 0) {
+                    StepCircleView(index: index, progress: progress)
+                    
+                    if index < stepCount - 1 {
+                        StepConnectorView(isActive: progress >= stepProgress(for: index + 1))
+                    }
+                }
             }
+        }
+    }
+
+    private func stepProgress(for step: Int) -> Double {
+        switch step {
+        case 1: return 0.0
+        case 2: return 0.33
+        case 3: return 0.66
+        case 4: return 1.0
+        default: return 1.0
         }
     }
 }
 
-struct QueueIllustration : View {
+struct StepCircleView: View {
+    let index: Int
+    let progress: Double
+
+    var isActive: Bool {
+        progress >= stepProgress
+    }
+
+    var stepProgress: Double {
+        switch index {
+        case 0: return 0.0
+        case 1: return 0.33
+        case 2: return 0.66
+        case 3: return 1.0
+        default: return 1.0
+        }
+    }
+
+    var imageName: String {
+        "queue\(index + 1)"
+    }
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(isActive ? Color.green.opacity(0.6) : Color.gray.opacity(0.4))
+                .frame(width: 40, height: 40)
+                .overlay(
+                    Circle().stroke(Color.white, lineWidth: 1)
+                )
+            Image(imageName)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 24, height: 24)
+        }
+        .frame(minWidth: 50)
+    }
+}
+
+struct StepConnectorView: View {
+    let isActive: Bool
+
+    var body: some View {
+        Rectangle()
+            .fill(isActive ? Color.green.opacity(0.6) : Color.gray.opacity(0.4))
+            .frame(height: 4)
+            .frame(maxWidth: .infinity)
+    }
+}
+
+struct QueueIllustration: View {
     let progress: Double
 
     var image: String {
@@ -111,14 +179,12 @@ struct QueueIllustration : View {
                 .resizable()
                 .scaledToFit()
         } else {
-            Image(uiImage: UIImage(named: image)!)
-                .resizable()
-                .scaledToFit()
+            Color.clear
         }
     }
 }
 
-struct AppLogo : View {
+struct AppLogo: View {
     let size: CGFloat
     var body: some View {
         Image(uiImage: UIImage(named: "AppLogo")!)
@@ -128,22 +194,6 @@ struct AppLogo : View {
             .clipShape(Circle())
     }
 }
-
-struct MinimalProgresBar: View {
-    let progress: Double
-    let position: Int
-    let size: CGFloat
-    var body: some View {
-        ProgressView(value: progress, total: 1) {
-            Text("\(position)")
-        }
-        .frame(width: size, height: size)
-        .progressViewStyle(.circular)
-        .tint(Color(.red))
-    }
-}
-
-// MARK: - Preview
 
 #Preview("LockScreen", as: .content, using: WaitlistAttributes(waitListName: "Nombre Ingresado")) {
     WaitTimeLiveActivityWidget()
