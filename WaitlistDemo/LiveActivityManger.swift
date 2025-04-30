@@ -33,7 +33,6 @@ class LiveActivityManager {
             }
         }
     }
-
     func updateActivity(position: Int, progress: Double) {
         guard let activity = activity else { return }
         let updatedContent = WaitlistAttributes.Waitlist(position: position, progress: progress)

@@ -35,7 +35,7 @@ struct LiveActivityContent : View {
 
             // Logo + nombre
             HStack(spacing: 6) {
-                AppLogo(size: 36)
+                AppLogo(size: 40)
                 Text(waitlistName)
                     .font(.system(size: 20))
                     .fontWeight(.medium)
@@ -56,16 +56,16 @@ struct LiveActivityContent : View {
                     
                 }
                 QueueIllustration(progress: progress)
-                    .frame(width: 100, height: 100)
+                    .frame(width: 50, height: 50)
                     .offset(x: 80, y: -24) // Leve hacia la izquierda
-                Spacer()
+                //Spacer()
             }
 
             // Barra de progreso más gruesa
             HorizontalProgressBar(level: progress)
-                .frame(height: 18)
+                .frame(height: 8)
                 .frame(maxWidth: .infinity)
-                .offset(y: -5)
+                .offset(y: -10)
 
         }
         .padding(8)

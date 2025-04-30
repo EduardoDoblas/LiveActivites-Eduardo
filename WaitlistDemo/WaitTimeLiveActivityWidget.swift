@@ -21,7 +21,7 @@ struct WaitTimeLiveActivityWidget : Widget{
             DynamicIsland {
                 
                 DynamicIslandExpandedRegion(.leading) {
-                    AppLogo(size: 48)
+                    AppLogo(size: 40)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     MinimalProgresBar(progress: context.state.progress,
@@ -45,9 +45,9 @@ struct WaitTimeLiveActivityWidget : Widget{
         }
     }
 }
-//#Preview("Preview", as: .content, using: WaitlistAttributes.init(waitListName: "Dinner Queue")){
-//    WaitTimeLiveActivityWidget()
-//}contentStates: {
-//    WaitlistAttributes.ContentState(position: 10, progress: 0.1)
-//    WaitlistAttributes.ContentState(position: 5, progress: 0.5)
-//}
+#Preview("Preview", as: .content, using: WaitlistAttributes(waitListName: "Dinner Queue")) {
+    WaitTimeLiveActivityWidget()
+} contentStates: {
+    WaitlistAttributes.ContentState(position: 10, progress: 0.1)
+    WaitlistAttributes.ContentState(position: 5, progress: 0.5)
+}
