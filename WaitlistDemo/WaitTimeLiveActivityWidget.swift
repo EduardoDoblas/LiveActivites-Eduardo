@@ -6,14 +6,6 @@
 //
 
 import Foundation
-//
-//  WaitTimeLiveActivityWidget.swift
-//  WaitlistDemoExtension
-//
-//  Created by Eduardo Villarreal on 23/04/25.
-//
-
-import Foundation
 import SwiftUI
 import ActivityKit
 import WidgetKit
@@ -24,32 +16,33 @@ struct WaitTimeLiveActivityWidget: Widget {
             LiveActivityContent(
                 progress: context.state.progress,
                 position: context.state.position,
-                waitlistName: context.attributes.waitListName
+                waitlistName: context.attributes.waitListName,
+                isCompact: false // Vista expandida
             )
         } dynamicIsland: { context in
             DynamicIsland {
-                // Vista expandida: usamos el mismo contenido del widget directamente
+                // Vista expandida
                 DynamicIslandExpandedRegion(.center) {
                     LiveActivityContent(
                         progress: context.state.progress,
                         position: context.state.position,
-                        waitlistName: context.attributes.waitListName
+                        waitlistName: context.attributes.waitListName,
+                        isCompact: true // Vista compacta adaptada
                     )
-                    .frame(maxWidth: .infinity, maxHeight: 160) // Altura ajustada
-                    .padding(.horizontal, 8)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
             } compactLeading: {
                 AppLogo(size: 24)
             } compactTrailing: {
-                MinimalProgressBar(
+                SegmentedProgressCircle(
                     progress: context.state.progress,
-                    position: context.state.position,
+                    totalSegments: 4,
                     size: 24
                 )
             } minimal: {
-                MinimalProgressBar(
+                SegmentedProgressCircle(
                     progress: context.state.progress,
-                    position: context.state.position,
+                    totalSegments: 4,
                     size: 24
                 )
             }
@@ -57,29 +50,53 @@ struct WaitTimeLiveActivityWidget: Widget {
     }
 }
 
-struct MinimalProgressBar: View {
+struct SegmentedProgressCircle: View {
     let progress: Double
-    let position: Int
+    let totalSegments: Int
     let size: CGFloat
+
+    var activeSegments: Int {
+        Int((progress * Double(totalSegments)).rounded(.down))
+    }
 
     var body: some View {
         ZStack {
+            // Contorno blanco
             Circle()
-                .stroke(Color.gray.opacity(0.3), lineWidth: 4)
+                .stroke(Color.white.opacity(0.6), lineWidth: 1)
                 .frame(width: size, height: size)
 
-            Circle()
-                .trim(from: 0, to: progress)
-                .stroke(Color.green, style: StrokeStyle(lineWidth: 4, lineCap: .round))
-                .rotationEffect(.degrees(-90))
-                .frame(width: size, height: size)
-
-            Text("\(position)")
-                .font(.system(size: size * 0.4, weight: .bold))
-                .foregroundColor(.white)
+            // Dibujar segmentos
+            ForEach(0..<totalSegments) { index in
+                SegmentShape(
+                    startAngle: Angle(degrees: Double(index) * (360.0 / Double(totalSegments))),
+                    endAngle: Angle(degrees: Double(index + 1) * (360.0 / Double(totalSegments)))
+                )
+                .fill(index < activeSegments ? Color.green : Color.gray.opacity(0.3))
+            }
         }
+        .frame(width: size, height: size)
     }
 }
-#Preview {
-    MinimalProgressBar(progress: <#T##Double#>, position: <#T##Int#>, size: <#T##CGFloat#>)
+
+struct SegmentShape: Shape {
+    let startAngle: Angle
+    let endAngle: Angle
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let radius = min(rect.width, rect.height) / 2
+        let center = CGPoint(x: rect.midX, y: rect.midY)
+
+        path.addArc(center: center,
+                    radius: radius,
+                    startAngle: startAngle - Angle(degrees: 90),
+                    endAngle: endAngle - Angle(degrees: 90),
+                    clockwise: false)
+
+        path.addLine(to: center)
+        path.closeSubpath()
+
+        return path
+    }
 }
